@@ -12,11 +12,14 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 contract Campaign {
 
     struct record {
-        uint scr; // 1 is hourly, 2 is daily, 3 is weekly, 4 is monthly
+        uint rid;
+        uint scr; 
         uint ts; 
     }
 
-    address ADMIN = 0xD0DC8A261Ad1B75a92C5E502ae10c3Fde042b000;
+    uint count = 0;
+    
+    mapping (uint => string) public entries;
     mapping (string => record) public scores;
     mapping (uint => address) public best;
     mapping (uint => uint) public bestscores;
@@ -26,11 +29,17 @@ contract Campaign {
         string memory b = string.concat(Strings.toHexString(uint256(uint160(msg.sender)), 20), Strings.toString(game));
         record storage r = scores[b]; 
         if (r.scr < score){
+            uint c = count + 1;
+            uint prev = r.rid;
             record memory s = record({
+                rid: c,
                 scr: score,
                 ts: block.timestamp
             });
             scores[b] = s;
+            entries[c] = b;
+            delete(entries[prev]);
+            count = c;
             if (bestscores[game] < score){
                 bestscores[game] = score;
                 best[game] = msg.sender;
