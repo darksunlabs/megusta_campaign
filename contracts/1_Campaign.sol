@@ -12,9 +12,9 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 contract Campaign {
 
     struct record {
-        uint rid;
-        uint scr; 
-        uint ts; 
+        uint rid; //the record id
+        uint scr; //the score
+        uint ts;  // the timestamp
     }
 
     uint count = 0;
@@ -26,6 +26,7 @@ contract Campaign {
 
     
     function register(uint score, uint game) public {
+        require (game == 1 || game == 2, "game id is 1 or 2 only");
         string memory b = string.concat(Strings.toHexString(uint256(uint160(msg.sender)), 20), Strings.toString(game));
         record storage r = scores[b]; 
         if (r.scr < score){
