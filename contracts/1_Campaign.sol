@@ -48,6 +48,19 @@ contract Campaign {
         }
     }
 
+
+    function fetch_myscore(uint gid) public view returns (uint){
+        string memory b = string.concat(Strings.toHexString(uint256(uint160(msg.sender)), 20), Strings.toString(gid));
+        record memory rec = scores[b];
+        return rec.scr;
+    }
+
+    function fetch_mytime(uint gid) public view returns (uint){
+        string memory b = string.concat(Strings.toHexString(uint256(uint160(msg.sender)), 20), Strings.toString(gid));
+        record memory rec = scores[b];
+        return rec.ts;
+    }
+
     
     function fetch_best(uint gid) public view returns (address){
         address bst = best[gid];
