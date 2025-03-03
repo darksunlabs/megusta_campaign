@@ -29,9 +29,8 @@ contract Campaign {
         require (game == 1 || game == 2, "game id is 1 or 2 only");
         string memory b = string.concat(Strings.toHexString(uint256(uint160(msg.sender)), 20), Strings.toString(game));
         record storage r = scores[b]; 
-        if (r.scr < score){
+        if (r.scr == 0){
             uint c = count + 1;
-            uint prev = r.rid;
             record memory s = record({
                 rid: c,
                 scr: score,
@@ -39,8 +38,22 @@ contract Campaign {
             });
             scores[b] = s;
             entries[c] = b;
-            delete(entries[prev]);
+            
             count = c;
+            if (bestscores[game] < score){
+                bestscores[game] = score;
+                best[game] = msg.sender;
+            }
+        }
+        else if (r.scr < score){
+            uint prev = r.rid;
+            record memory s = record({
+                rid: prev,
+                scr: score,
+                ts: block.timestamp
+            });
+            scores[b] = s;
+            entries[prev] = b;
             if (bestscores[game] < score){
                 bestscores[game] = score;
                 best[game] = msg.sender;
