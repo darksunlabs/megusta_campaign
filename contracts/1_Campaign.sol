@@ -2,7 +2,6 @@
 
 pragma solidity >=0.8.2 <0.9.0;
 
-import "@openzeppelin/contracts/utils/Strings.sol";
 
 /**
  * @title Storage
@@ -19,16 +18,16 @@ contract Campaign {
 
     uint count = 0;
     
-    mapping (uint => string) public entries;
-    mapping (string => record) public scores;
+    mapping (uint => mapping(uint => address)) public entries;
+    mapping (address => mapping(uint => record)) public scores;
     mapping (uint => address) public best;
     mapping (uint => uint) public bestscores;
 
     
     function register(uint score, uint game) public {
         require (game == 1 || game == 2, "game id is 1 or 2 only");
-        string memory b = string.concat(Strings.toHexString(uint256(uint160(msg.sender)), 20), Strings.toString(game));
-        record storage r = scores[b]; 
+        require (score > 0, "nothing to record");
+        record storage r = scores[msg.sender][game]; 
         if (r.scr == 0){
             uint c = count + 1;
             record memory s = record({
@@ -36,9 +35,8 @@ contract Campaign {
                 scr: score,
                 ts: block.timestamp
             });
-            scores[b] = s;
-            entries[c] = b;
-            
+            scores[msg.sender][game] = s;
+            entries[c][game] = msg.sender;
             count = c;
             if (bestscores[game] < score){
                 bestscores[game] = score;
@@ -52,8 +50,8 @@ contract Campaign {
                 scr: score,
                 ts: block.timestamp
             });
-            scores[b] = s;
-            entries[prev] = b;
+            scores[msg.sender][game] = s;
+            entries[prev][game] = msg.sender;
             if (bestscores[game] < score){
                 bestscores[game] = score;
                 best[game] = msg.sender;
@@ -61,16 +59,18 @@ contract Campaign {
         }
     }
 
+    function fetch_count() public view returns (uint){
+        return count;
+    }
+
 
     function fetch_myscore(uint gid) public view returns (uint){
-        string memory b = string.concat(Strings.toHexString(uint256(uint160(msg.sender)), 20), Strings.toString(gid));
-        record memory rec = scores[b];
+        record memory rec = scores[msg.sender][gid];
         return rec.scr;
     }
 
     function fetch_mytime(uint gid) public view returns (uint){
-        string memory b = string.concat(Strings.toHexString(uint256(uint160(msg.sender)), 20), Strings.toString(gid));
-        record memory rec = scores[b];
+        record memory rec = scores[msg.sender][gid];
         return rec.ts;
     }
 
