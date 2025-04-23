@@ -25,7 +25,7 @@ contract Campaign {
 
     
     function register(uint score, uint game) public {
-        require (game == 1 || game == 2, "game id is 1 or 2 only");
+        require (game <= 10, "game id is 1 to 10");
         require (score > 0, "nothing to record");
         record storage r = scores[msg.sender][game]; 
         if (r.scr == 0){
